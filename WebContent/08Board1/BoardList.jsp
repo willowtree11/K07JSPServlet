@@ -1,3 +1,4 @@
+<%@page import="util.PagingUtil"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.HashMap"%>
@@ -24,6 +25,7 @@
 	*/
 	Map<String,Object> param = new HashMap<String, Object>();
 	
+	//검색어가 입력된 경우 전송된 폼값을 받아 Map에 저장한다.
 	String searchColumn = request.getParameter("searchColumn"); 
 	String searchWord = request.getParameter("searchWord"); 
 	if(searchWord!=null){
@@ -37,8 +39,27 @@
 	//board테이블에 입력된 전체 레코드 갯수를 카운트하여 반환
 	int totalRecordCount = dao.getTotalRecordCount(param); 
 
+	/******페이지 처리를 위한 코드 추가 start ******/
+	int pageSize = Integer.parseInt(application.getInitParameter("PAGE_SIZE"));
+	int blockPage = Integer.parseInt(application.getInitParameter("BLOCK_PAGE"));
+
+	int totalPage = (int)Math.ceil((double)totalRecordCount/pageSize);
+	out.println(totalRecordCount+" "+totalPage);
+
+	int nowPage = (request.getParameter("nowPage")==null 
+					|| request.getParameter("nowPage").equals(""))
+	  ? 1 : Integer.parseInt(request.getParameter("nowPage"));
+
+	int start = (nowPage-1)*pageSize + 1;
+	int end = nowPage * pageSize;
+
+	param.put("start", start);
+	param.put("end", end);
+	/******페이지 처리를 위한 코드 추가 end ******/
+		
 	//board테이블의 레코드를 select하여 결과셋을 List컬렉션으로 반환
-	List<BbsDTO> bbs = dao.selectList(param);
+	//List<BbsDTO> bbs = dao.selectList(param);(페이지 처리 없음)
+	List<BbsDTO> bbs = dao.selectListPage(param); //페이지 처리 있음
 	
 	//DB자원해제
 	dao.close();
@@ -73,7 +94,7 @@
 						</select>
 					</div>
 					<div class="input-group">
-						<input type="text" name="searchWord"s class="form-control"/>
+						<input type="text" name="searchWord" class="form-control"/>
 						<div class="input-group-btn">
 							<button type="submit" class="btn btn-warning">
 								<i class='fa fa-search' style='font-size:20px'></i>
@@ -129,8 +150,26 @@
 							즉 DB가 반환해준 레코드의 갯수만큼 반복하면서 출력한다.
 						*/
 						for(BbsDTO dto:bbs){
-							//전체 레코드 수를 이용해 가상번호를 부여하고 반복시 1씩 차감
-							vNum=totalRecordCount --;
+							/*
+							전체 레코드수를 이용하여 가상번호를 부여하고
+							반복시 1씩 차감한다.(페이지 처리 없을때의 방식)
+							*/
+							//vNum = totalRecordCount --;
+							
+							//페이지 처리를 할때 가상번호 계산방법
+							vNum = totalRecordCount - 
+								(((nowPage-1) * pageSize) + countNum++);
+							
+							/*
+							전체게시물수 : 108개
+							페이지사이즈(web.xml에 PAGE_SIZE로설정) : 10
+							현제페이지1일때
+			 					첫번째게시물 : 108 - (((1-1)*10)+0) = 108
+			 					두번째게시물 : 108 - (((1-1)*10)+1) = 107
+			 				현제페이지2일때
+			 		 			첫번째게시물 : 108 - (((2-1)*10)+0) = 98
+			 		 			두번째게시물 : 108 - (((2-1)*10)+1) = 97				
+							*/				
 					%>
 							<!-- 리스트반복 start -->
 							<tr>
@@ -171,15 +210,19 @@
 				<div class="col">
 					<!-- 페이지번호 부분 -->
 					<ul class="pagination justify-content-center">
-						<li class="page-item"><a href="#" class="page-link"><i class="fas fa-angle-double-left"></i></a></li>
-						<li class="page-item"><a href="#" class="page-link"><i class="fas fa-angle-left"></i></a></li>
-						<li class="page-item"><a href="#" class="page-link">1</a></li>		
-						<li class="page-item active"><a href="#" class="page-link">2</a></li>
-						<li class="page-item"><a href="#" class="page-link">3</a></li>
-						<li class="page-item"><a href="#" class="page-link">4</a></li>		
-						<li class="page-item"><a href="#" class="page-link">5</a></li>
-						<li class="page-item"><a href="#" class="page-link"><i class="fas fa-angle-right"></i></a></li>
-						<li class="page-item"><a href="#" class="page-link"><i class="fas fa-angle-double-right"></i></a></li>
+						<!-- 
+							매개변수 설명:
+								totalRecordCount: 게시물의 전체 갯수
+								pageSize: 한 페이지에 출력할 게시물의 갯수
+								blockPage: 한 블록에 표시할 페이지 번호의 갯수
+								nowPage: 현재 페이지 번호
+								"BoardList.jsp?": 현재 게시판의 실행 파일명
+						 -->
+						<%=PagingUtil.pagingBS4(totalRecordCount,
+								pageSize, 
+								blockPage, 
+								nowPage,
+								"BoardList.jsp?") %>
 					</ul>
 				</div>				
 			</div>		
@@ -190,6 +233,8 @@
 	<jsp:include page="../common/boardBottom.jsp"/>
 
 </div>
+</body>
+</html>
 
 <!-- 
 	<i class='fas fa-edit' style='font-size:20px'></i>
@@ -209,8 +254,3 @@
 	<i class='fas fa-pencil-ruler' style='font-size:20px'></i>
 	<i class='fa fa-cog' style='font-size:20px'></i>
  -->
-	
-</body>
-</html>
-
- 
