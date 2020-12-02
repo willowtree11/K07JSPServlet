@@ -25,41 +25,67 @@
 	*/
 	Map<String,Object> param = new HashMap<String, Object>();
 	
+	//Get방식으로 전달되는 폼 값을 페이지 번호로 넘겨주기 위해 문자열로 저장
+	String queryStr="";
+	
 	//검색어가 입력된 경우 전송된 폼값을 받아 Map에 저장한다.
-	String searchColumn = request.getParameter("searchColumn"); 
-	String searchWord = request.getParameter("searchWord"); 
+	String searchColumn = request.getParameter("searchColumn");
+	String searchWord = request.getParameter("searchWord");
 	if(searchWord!=null){
 		/*
-			리스트 페이지에 최초 진입시에는 파라미터가 없으므로
-			if로 구분하여 파라미터가 있을때만 Map에 추가한다.
+		리스트 페이지에 최초 진입시에는 파라미터가 없으므로 if로 
+		구분하여 파라미터가 있을때만 Map에 추가한다. 
 		*/
-		param.put("Column", searchColumn); 
+		param.put("Column", searchColumn);
 		param.put("Word", searchWord);
+		
+		//검색어가 있을때 쿼리스트링을 만들어준다.
+		queryStr += "searchColumn="+searchColumn
+				 +"&searchWord="+searchWord+"&";
 	}
 	//board테이블에 입력된 전체 레코드 갯수를 카운트하여 반환
-	int totalRecordCount = dao.getTotalRecordCount(param); 
+	//int totalRecordCount = dao.getTotalRecordCount(param); join X
+	int totalRecordCount = dao.getTotalRecordCountSearch(param); //join O
 
-	/******페이지 처리를 위한 코드 추가 start ******/
-	int pageSize = Integer.parseInt(application.getInitParameter("PAGE_SIZE"));
-	int blockPage = Integer.parseInt(application.getInitParameter("BLOCK_PAGE"));
-
+	/*■■■■■■■ 페이지 처리를 위한 코드 추가 start ■■■■■■■ */
+	
+	//한 페이지에 출력할 레코드 갯수 10
+	int pageSize = Integer.parseInt(
+		application.getInitParameter("PAGE_SIZE"));
+	
+	//한 블럭당 출력할 페이지 번호의 갯수 5
+	int blockPage = Integer.parseInt(
+		application.getInitParameter("BLOCK_PAGE"));
+	
+	/*
+	전체 페이지 수 계산 => 게시물이 108개라 가정할 때 108/10=>10.8 -> ceil(10.8)=>11 페이지	
+	*/
 	int totalPage = (int)Math.ceil((double)totalRecordCount/pageSize);
-	out.println(totalRecordCount+" "+totalPage);
-
+	//out.println(totalRecordCount+" "+totalPage);
+	
+	/*
+	현재 페이지 번호: 파라미터가 없을 때는 무조건 1페이지로 지정,
+				(user의 url조작을 방지하기 위함)
+				값이 있을 때는 해당 값을 얻어와서 숫자로 변경
+				즉 리스트에 처음 진입했을 때는 1페이지
+	*/
 	int nowPage = (request.getParameter("nowPage")==null 
 					|| request.getParameter("nowPage").equals(""))
-	  ? 1 : Integer.parseInt(request.getParameter("nowPage"));
-
+		? 1 : Integer.parseInt(request.getParameter("nowPage"));
+	
+	//한 페이지에서 출력할 게시물의 범위를 결정한다. 계산식은 교안참조. 쿼리문에서 between문에 사용됨
 	int start = (nowPage-1)*pageSize + 1;
 	int end = nowPage * pageSize;
-
+	
+	//게시물의 범위를 Map컬렉션에 저장하고 DAO로 전달한다
 	param.put("start", start);
 	param.put("end", end);
-	/******페이지 처리를 위한 코드 추가 end ******/
+	/*■■■■■■■ 페이지 처리를 위한 코드 추가 end ■■■■■■■ */
 		
 	//board테이블의 레코드를 select하여 결과셋을 List컬렉션으로 반환
-	//List<BbsDTO> bbs = dao.selectList(param);(페이지 처리 없음)
-	List<BbsDTO> bbs = dao.selectListPage(param); //페이지 처리 있음
+	////List<BbsDTO> bbs = dao.selectList(param);(페이지 처리 없음)
+	////List<BbsDTO> bbs = dao.selectListPage(param); (페이지 처리 있음)
+	List<BbsDTO> bbs = dao.selectListPageSearch(param); //페이지 처리 있음+회원이름 검색
 	
 	//DB자원해제
 	dao.close();
@@ -89,8 +115,9 @@
 							<option value="content" 
 								<%=(searchColumn!=null && searchColumn.equals("content")) ?
 										"selected" : ""%>>내용</option>
-							<!-- 이름으로 검색하려면 Join이 필요하므로 차후 업데이트 예정임 -->
-							<!-- <option value="id">작성자</option> -->
+							<option value="name" 
+								<%=(searchColumn!=null && searchColumn.equals("name")) ?
+										"selected" : ""%>>작성자</option>
 						</select>
 					</div>
 					<div class="input-group">
@@ -109,7 +136,7 @@
 					<colgroup>
 						<col width="60px"/>
 						<col width="*"/>
-						<col width="120px"/>
+						<col width="150px"/>
 						<col width="120px"/>
 						<col width="80px"/>
 						<!-- <col width="60px"/> 첨부파일-->
@@ -175,9 +202,9 @@
 							<tr>
 								<td class="text-center"><%=vNum %></td>
 								<td class="text-left">
-									<a href="BoardView.jsp?num=<%=dto.getNum() %>"><%=dto.getTitle() %></a>
+									<a href="BoardView.jsp?num=<%=dto.getNum() %>&nowPage=<%=nowPage %>&<%=queryStr%>"><%=dto.getTitle() %></a>
 								</td>
-								<td class="text-center"><%=dto.getId() %></td>
+								<td class="text-center"><%=dto.getName() %><br/>(<%=dto.getId() %>)</td>
 								<td class="text-center"><%=dto.getPostdate() %></td>
 								<td class="text-center"><%=dto.getVisitcount() %></td>
 								<!-- <td class="text-center"><i class="material-icons" style="font-size:20px">attach_file</i></td> -->
@@ -222,11 +249,15 @@
 								pageSize, 
 								blockPage, 
 								nowPage,
-								"BoardList.jsp?") %>
+								"BoardList.jsp?"+queryStr) %>
 					</ul>
-				</div>				
+				</div>	
 			</div>		
 		<!-- ### 게시판의 body 부분 end ### -->
+			<%-- 텍스트 기반의 페이지번호 출력하기 --%>
+			<div class="text-center">
+			<%=PagingUtil.pagingTxt(totalRecordCount, pageSize, 
+					blockPage, nowPage, "BoardList.jsp?"+queryStr) %></div>
 		</div>
 	</div>
 	<div class="row border border-dark border-bottom-0 border-right-0 border-left-0"></div>

@@ -30,7 +30,6 @@ public class PagingUtil {
 			pagingStr += "<li class='page-item'><a href='"+pageName+"nowPage="+(intTemp-1)+"' class='page-link'><i class='fas fa-angle-left'></i></a></li>";
 		}
 
-		
 		int blockCount = 1;
 		while(blockCount<=blockPage && intTemp<=totalPage)
 		{
@@ -59,12 +58,68 @@ public class PagingUtil {
 		return pagingStr;
 	}
 	
+	//가장 간단한 버전: 페이지 번호를 순수 텍스트로 표현하는 버전
+	public static String pagingTxt(int totalRecordCount,
+			int pageSize, int blockPage, int nowPage, String pageName) {
+		
+		String pagingStr = "";
+		//전체 페이지 수 계산
+		int totalPage =	
+				(int)(Math.ceil(((double)totalRecordCount/pageSize)));
+		
+		//페이지 블럭 상태를 표현하기 위한 계산식
+		int intTemp = (((nowPage-1) / blockPage) * blockPage) + 1;
+		
+		/*
+			첫번째 페이지 블럭이라면 이전 블럭이 존재하지 않으므로
+			화면상에 표시하지 않는다.
+			두번째 블럭부터 표시한다.
+		 */
+		if(intTemp != 1) {
+			pagingStr += "<a href='"+pageName+"nowPage=1'>[첫 페이지로]</a>";
+			pagingStr += "&nbsp;";
+			pagingStr += "<a href='"+pageName+"nowPage="+(intTemp-1)+"'>[이전 블록으로]</a>";
+		}
+
+		int blockCount = 1;
+		//각 페이지 바로가기 BLOCK_PAGE의 설정값 만큼 반복, 
+		/*
+		  	BLOCK_PAGE의 설정값 만큼 반복하는 것을 기본으로 하지만
+		  	전체 페이지를 넘어갈 수는 없으므로 남은 페이지 만큼만 반복하기 위해서
+		  	두번째 조건을 추가한다.
+			=> 무조건 블록페이지 갯수가 아니라 남아있는 페이지만큼(while문 쓰는 이유)
+		 */
+		while(blockCount<=blockPage && intTemp<=totalPage)
+		{
+			if(intTemp==nowPage) {
+				//현재 페이지인 경우에는 링크 제거
+				pagingStr += "&nbsp;"+intTemp+"&nbsp;";
+			}
+			else {
+				//현재 페이지가 아닌 경우 링크 필요
+				pagingStr += "&nbsp;";
+				pagingStr += "<a href='"+pageName+"nowPage="+intTemp+"'>"+intTemp+"</a>";
+				pagingStr += "&nbsp;";
+			}
+			intTemp++;
+			blockCount++;
+		}
+
+		if(intTemp <= totalPage) {
+			pagingStr += "<a href='"+pageName+"nowPage="+intTemp+"'>[다음 블록으로]</a>";
+			pagingStr += "&nbsp;";
+			pagingStr += "<a href='"+pageName+"nowPage="+totalPage+"'>[마지막 페이지로]</a>";
+		}
+
+		return pagingStr;
+	}
+	
 	//간단버전(부트스트랩 말고 이미지를 썼을 경우)
 	public static String pagingImg(int totalRecordCount,
 			int pageSize, int blockPage, int nowPage, String pageName) {
 		
 		String pagingStr = "";
-
+		
 		int totalPage =	(int)(Math.ceil(((double)totalRecordCount/pageSize)));
 		
 		int intTemp = (((nowPage-1) / blockPage) * blockPage) + 1;
@@ -74,7 +129,7 @@ public class PagingUtil {
 			pagingStr += "&nbsp;";
 			pagingStr += "<a href='"+pageName+"nowPage="+(intTemp-1)+"'><img src='../images/paging2.gif'></a>";
 		}
-
+		
 		int blockCount = 1;
 		while(blockCount<=blockPage && intTemp<=totalPage)
 		{
@@ -89,13 +144,13 @@ public class PagingUtil {
 			intTemp++;
 			blockCount++;
 		}
-
+		
 		if(intTemp <= totalPage) {
 			pagingStr += "<a href='"+pageName+"nowPage="+intTemp+"'><img src='../images/paging3.gif'></a>";
 			pagingStr += "&nbsp;";
 			pagingStr += "<a href='"+pageName+"nowPage="+totalPage+"'><img src='../images/paging4.gif'></a>";
 		}
-
+		
 		return pagingStr;
 	}
 }
