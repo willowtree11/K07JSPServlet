@@ -8,10 +8,6 @@
 <head>
 <meta charset="UTF-8">
 <title>OperatorEL</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
 	<h2>EL의 연산자들</h2>
@@ -65,12 +61,25 @@
 	<c:set var="elVar" value="<%=varScriptLet %>"/>
 	\${elVar }:${elVar }
 	
+	<!-- 
+		Tomcat8.0부터는 EL에서 변수할당이 가능해졌다.
+		하지만 개발시에는 실제 서비스 할 웹서버의 버전을 확인한 후
+		사용여부를 결정해야 한다.
+		EL은 전통적으로 값을 표현(출력) 하는 용도로 사용되어졌으므로
+		표현용으로만 사용하는 것이 좋다.
+	 -->
 	<h3>EL변수에 값 할당</h3>
 	<c:set var="fnum" value="9"/>
 	<c:set var="snum" value="5"/>
-	\${fnum=99 }: ${fnum=99 }
+	\${fnum=99 }: ${fnum=99 } <!-- 99로 재할당되어 99가 출력됨 -->
 	
 	<h3>EL의 산술연산자</h3>
+	<!-- 
+		EL에서는 정수와 정수를 연산하더라도 실수의 결과가 나올 수 있다.
+		즉 자동형변환 되어 출력된다.
+		나눗셈을 위한 /연산자 대신 div, 
+		나머지를 구하는 %대신 mod를 사용할 수 있다.
+	 -->
 	<ul>
 		<li>\${fnum+snum }: ${fnum+snum }</li>
 		<li>\${fnum/snum }: ${fnum/snum }</li>
@@ -79,22 +88,58 @@
 		<li>\${fnum%snum }: ${fnum%snum }</li>
 		<li>\${fnum mod snum }: ${fnum mod snum }</li>
 		
+		<!-- 
+			EL에서는 +연산자를 덧셈의 용도로만 사용한다.
+			문자열을 연결하기 위한 용도로는 사용할 수 없다.
+			아래 문장중 "100"은 자동으로 숫자로 변경된 후 연산된다.
+			그 외에는 NumberFormatException 발생
+		 -->
 		<li>\${"100"+100 } : ${"100"+100 }</li>
 		<li>\${"Hello~"+"EL~" } : \${"Hello!"+"EL~" }</li>
 		<li>\${"일"+2 } : \${"일"+2 }</li>
 	</ul>
 	
 	<h3>EL의 비교연산자</h3>
+	<!-- 
+		EL에서는 비교연산자를 이용한 비교시 변수의 값을 모두 문자열로 인식
+		String 클래스의 compareTo()와 같은 방식으로 비교
+		즉, 첫번째 문자부터 하나씩 비교해나간다.
+		단 실제 숫자의 비교시에는 일반적인 숫자비교가 이루어진다.
+		
+		변수에 저장할때 영역에 저장되므로 object 영역.. 
+	 	문자열의 비교처럼 comepareTo로 하게됨
+	 	fnum 변수에 저장된 100은 아스키코드로 해석하지만 숫자 100은 숫자로 인식
+		아스키코드의 순서를 비교하는 compareTo 처럼 해석하므로 결과가 조금 다를 수 있다
+		100<90 이 되는건 1의 아스키코드가 9의 아스키코드보다 전에 있으므로
+	 -->
 	<c:set var="fnum" value="100"/>
 	<c:set var="snum" value="90"/>
 	<ul>
-		<li>\${fnum > snum }: ${fnum > snum }</li>
-		<li>\${100 > 90 }:${100 > 90 }</li>
+		<!-- 
+			fnum과 snum은 영역에 저장된 데이터이므로 
+			Object형으로 저장된다. 따라서 비교시 객체상태에서 비교가 이루어지게 된다.
+			100과 90은 실제 숫자로 비교가 이루어진다.
+		 -->
+		<li>\${fnum > snum }: ${fnum > snum }</li> <!-- 결과 : false -->
+		<li>\${100 > 90 }:${100 > 90 }</li> <!-- 결과 : false -->
 		
+		<!-- 
+			Java에서는 문자열을 비교할 때 equals()로 비교하지만
+			EL에서는 ==의 형태로 비교한다.
+		 -->
 		<li>\${"JAVA"=='JAVA'}: ${"JAVA"=='JAVA' }</li>
-		<li>\${'JAVA'=="JAVA"}: ${'JAVA'=="JAVA" }</li>
+		<li>\${'Java'=="JAVA"}: ${'Java'=="JAVA" }</li>
 	</ul>
-	
+	<!-- 
+		> : gt(Greater Then)
+		>= : ge(Greater then Equal)
+		< : lt(Less Then)
+		<= : le(Less then Equal)
+		== : eq(EQual)
+		!= : ne(Not Equal)
+		&& : And
+		|| : Or
+	 -->
 	<h3>EL의 논리연산자</h3>
 	<ul>
 		<li>\${5>=5 && 10!=10 } : <!-- 참 && 거짓 => 거짓 -->
@@ -106,6 +151,14 @@
 	<h3>EL의 삼항연산자</h3>
 	\${10 gt 9 ? "참" : "거짓" }: ${10 gt 9 ? "참" : "거짓" }
 	
+	<!-- 
+		empty연산자
+		: 	null이거나 ""(빈 문자열) 일 때 
+			배열인 경우 길이가 0일 때
+			컬렉션인 경우 size가 0일 때
+			
+			-> true를 반환하는 연산자
+	 -->
 	<h3>EL의 empty연산자 : null일 때 true를 반환하는 연산자</h3>
 	<%
 		String nullStr=null;
