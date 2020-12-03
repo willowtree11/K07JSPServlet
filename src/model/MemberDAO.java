@@ -61,7 +61,7 @@ public class MemberDAO {
 		boolean isFlag = false;
 
 		try {
-			//prepare객체를 통해 쿼리문을 전송한다. 
+			//prepare객체를 통해 쿼리문을 전송한다.
 			//생성자에서 연결정보를 저장한 커넥션 객체를 사용함.
 			psmt = con.prepareStatement(sql);
 			//쿼리문의 인파라미터 설정(DB의 인덱스는 1부터 시작)
