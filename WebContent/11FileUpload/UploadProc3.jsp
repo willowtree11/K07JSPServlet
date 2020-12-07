@@ -1,5 +1,5 @@
-<%@page import="model.MyfileDAO"%>
-<%@page import="model.MyfileDTO"%>
+<%@page import="model.MyFileDAO"%>
+<%@page import="model.MyFileDTO"%>
 <%@page import="java.io.File"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -67,7 +67,12 @@
 		idx=fileName.lastIndexOf(".");
 		
 		realFileName=nowTime+fileName.substring(idx, fileName.length());
-		
+		/*
+		서버의 물리적경로와 생성된 파일명을 통해 File객체를 생성한다. 
+		파일객체.separator : 파일경로를 나타낼때 윈도우와 리눅스는 각각
+	\ 혹은 / 와 같이 os에 따라 구분기호가 틀린데, 해당 OS에 맞는
+	구분기호를 구해주는 역할을 한다. 
+		*/
 		oldFile=new File(saveDirectory+oldFile.separator+fileName);
 		newFile=new File(saveDirectory+oldFile.separator+realFileName);
 		
@@ -75,19 +80,19 @@
 		
 		//파일을 제외한 나머지 폼값을 받아온다. 
 		/*
-			폼값은 request 내장객체를 통해서가 아니라 MultipartRequest객체를
-			통해서 받는다.
+	폼값은 request 내장객체를 통해서가 아니라 MultipartRequest객체를
+	통해서 받는다.
 		*/
 		name = mr.getParameter("name");
 		title = mr.getParameter("title");
 		String[] interArr = mr.getParameterValues("inter");
 		for(String s : interArr){
-			inter.append(s +",&nbsp;");
+	inter.append(s +",&nbsp;");
 		}	
 		
 		//////////추가/////////
 		//DTO객체 생성후 폼값 저장
-		MyfileDTO dto=new MyfileDTO();
+		MyFileDTO dto=new MyFileDTO();
 		dto.setName(name);
 		dto.setTitle(title);
 		dto.setInter(inter.toString());
@@ -95,7 +100,7 @@
 		dto.setSfile(realFileName); //서버에 저장된 파일명
 		
 		//DAO객체 생성후 DB연결 및 insert처리
-		MyfileDAO dao=new MyfileDAO(application);
+		MyFileDAO dao=new MyFileDAO(application);
 		dao.myfileInsert(dto);
 		
 		//DB처리 후 페이지 이동

@@ -1,16 +1,15 @@
 package model;
 
-public class MyfileDTO {
+public class MyFileDTO { 
 	private String idx;		//일련번호
 	private String name;	//작성자
 	private String title;	//제목
 	private String inter;	//관심사항
-	private String ofile;	//원본 파일명
+	private String ofile;	//원본파일명
 	private String sfile;	//서버에 저장된 파일명
 	private String postdate;//작성일
-	
-	//getter-setter
-	public String getIdx() {
+	//getter/setter 
+	public String getIdx() { 
 		return idx;
 	}
 	public void setIdx(String idx) {
@@ -52,6 +51,5 @@ public class MyfileDTO {
 	public void setPostdate(String postdate) {
 		this.postdate = postdate;
 	}
-	
 	
 }
