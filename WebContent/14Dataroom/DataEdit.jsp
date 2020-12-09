@@ -17,7 +17,7 @@
 		<jsp:include page="../common/boardLeft.jsp" />
 		<div class="col-9 pt-3">
 			<!-- ### 게시판의 body 부분 start ### -->
-			<h3>자료실 - <small>Write(글쓰기)</small></h3>
+			<h3>자료실 - <small>Edit(수정)</small></h3>
 			<script>
 				//폼체크
 				function checkValidate(fm){
@@ -46,11 +46,21 @@
 			<div class="row mt-3 mr-1">
 				<table class="table table-bordered table-striped">
 					<!-- 
-						파일 업로드를 위해서는 ★★반드시 enctype을 선언★★해야 한다.
+						★파일 업로드★를 위해서는 ★★반드시 enctype을 선언★★해야 한다.
 						enctype선언이 없으면 파일명 만 전송이 되고 파일은 전송되지 않게됨.(폼값이 전송되지 않음)
 					 -->
-					<form name="writeFrm" method="post" action="../DataRoom/DataWrite" 
+					<form name="writeFrm" method="post" action="../DataRoom/DataEdit" 
 					onsubmit="return checkValidate(this);" enctype="multipart/form-data">
+					
+					<input type="hid-den" name="idx" value="${dto.idx }"/>
+					<input type="hid-den" name="nowPage" value="${param.nowPage }" />
+					<input type="hid-den" name="originalfile" value="${dto.attachedfile }" />
+				<!-- 
+					기존에 등록한 파일이 있는 경우 수정시 파일을 첨부하지 않으면
+					기존 파일을 유지해야 하므로 별도의 hidden폼이 필요하다.
+					즉 새로운 파일을 등록하면 새로운 값으로 업데이트 하고
+					파일을 등록하지 않으면 기존 파일명으로 데이터를 유지하게 된다.
+				 -->
 						<colgroup>
 							<col width="20%"/>
 							<col width="*"/>
@@ -59,8 +69,7 @@
 							<tr>
 								<th class="text-center align-middle">작성자</th>
 								<td>
-									<input type="text" class="form-control" name="name"	
-										style="width:100px;"/>
+									<input type="text" class="form-control"	name="name" style="width:100px;" value="${dto.name }" />
 								</td>
 							</tr>
 							<tr>
@@ -68,7 +77,7 @@
 									style="vertical-align:middle;">패스워드</th>
 								<td>
 									<input type="password" class="form-control" name="pass"
-										style="width:200px;"/>
+										style="width:200px;" value="${dto.pass }" />
 								</td>
 							</tr>
 							<tr>
@@ -76,7 +85,7 @@
 									style="vertical-align:middle;">제목</th>
 								<td>
 									<input type="text" class="form-control" 
-										name="title" />
+										name="title"  value="${dto.title }" />
 								</td>
 							</tr>
 							<tr>
@@ -84,15 +93,15 @@
 									style="vertical-align:middle;">내용</th>
 								<td>
 									<textarea rows="10" 
-										class="form-control" name="content"></textarea>
+										class="form-control" name="content">${dto.content }</textarea>
 								</td>
 							</tr>
 							<tr>
 								<th class="text-center"
 									style="vertical-align:middle;">첨부파일</th>
 								<td>
-									<input type="file" class="form-control" 
-										name="attachedfile" />
+									첨부파일명: ${dto.attachedfile }
+									<input type="file" class="form-control" name="attachedfile"/>
 								</td>
 							</tr>
 						</tbody>
@@ -102,7 +111,7 @@
 					<div class="col text-right">					
 						<button type="submit" class="btn btn-danger">전송하기</button>
 						<button type="reset" class="btn btn-dark">Reset</button>
-						<button type="button" class="btn btn-warning" onclick="location.href='BoardList.jsp';">리스트보기</button>
+						<button type="button" class="btn btn-warning" onclick="location.href='./DataList?nowPage=${param.nowPage }';">리스트보기</button>
 					</div>
 				</form>
 			</div>

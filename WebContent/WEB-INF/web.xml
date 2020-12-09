@@ -55,7 +55,7 @@
   	</taglib>
   </jsp-config>
   
-  <!-- 서블릿 매핑(등록)하기 -->
+  <!-- 예제1: 서블릿 매핑(등록)하기 -->
   <!-- JSP파일 없이 서블릿에서 즉시 내용을 출력하는 예제 -->
   <servlet>
  	<!-- 3. 아래 2번에서 지정한 이름과 동일하게 지정한다. -->
@@ -71,7 +71,7 @@
   	<url-pattern>/13Servlet/NoJSPServlet.do</url-pattern>
   </servlet-mapping>
   
-  <!-- JSP파일에서 내용을 출력하기 위해 request 영역을 이용하고,
+  <!-- 예제2: JSP파일에서 내용을 출력하기 위해 request 영역을 이용하고,
  		 포워드를 통해 영역을 공유한다. -->
   <servlet>
   	<servlet-name>HelloServlet</servlet-name>
@@ -99,7 +99,7 @@
   	<url-pattern>/13Servlet/CalculateServlet.kosmo</url-pattern>
   </servlet-mapping>
   
-  <!-- 예제  SimpleMVC 간단한 MVC패턴 만들어보기-->
+  <!-- 예제5:  SimpleMVC 간단한 MVC패턴 만들어보기-->
   <servlet>
   	<servlet-name>SimpleMVC</servlet-name>
   	<servlet-class>servlet.SimpleMVC</servlet-class>
@@ -129,6 +129,54 @@
     <servlet-name>DataRoomWrite</servlet-name>
     <url-pattern>/DataRoom/DataWrite</url-pattern>
   </servlet-mapping>
+  
+  <!-- 자료실 상세보기 매핑 --> 
+  <servlet>
+    <servlet-name>DataRoomView</servlet-name>
+    <servlet-class>controller.ViewCtrl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DataRoomView</servlet-name>
+    <url-pattern>/DataRoom/DataView</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 패스워드 검증 매핑 --> 
+  <servlet>
+    <servlet-name>DataRoomPassword</servlet-name>
+    <servlet-class>controller.PasswordCtrl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DataRoomPassword</servlet-name>
+    <url-pattern>/DataRoom/DataPassword</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 자료실 게시물 삭제 매핑 --> 
+  <servlet>
+    <servlet-name>DataRoomDelete</servlet-name>
+    <servlet-class>controller.DeleteCtrl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DataRoomDelete</servlet-name>
+    <url-pattern>/DataRoom/DataDelete</url-pattern>
+  </servlet-mapping>
+  
+  <!-- 자료실 게시물 수정 매핑 --> 
+  <servlet>
+    <servlet-name>DataRoomEdit</servlet-name>
+    <servlet-class>controller.EditCtrl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DataRoomEdit</servlet-name>
+    <url-pattern>/DataRoom/DataEdit</url-pattern>
+  </servlet-mapping>
+  
+  
+  
+  
+  
+  
+  
+  
   
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

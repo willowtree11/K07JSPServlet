@@ -36,6 +36,20 @@ public class DataroomDAO {
 		}		
 	}
 	
+	public DataroomDAO(ServletContext ctx) {
+		try {
+			Class.forName(ctx.getInitParameter("JDBCDriver"));
+			String id = "kosmo";
+			String pw = "1234";
+			con = DriverManager.getConnection(
+					ctx.getInitParameter("ConnectionURL"),id,pw);
+			System.out.println("DB연결성공");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void close() {
 		try {
 			//연결을 해제하는 것이 아니라 풀에 다시 반납한다.
@@ -108,6 +122,7 @@ public class DataroomDAO {
 		return bbs;
 	}
 	
+	//자료실 글쓰기 처리
 	public int insert(DataroomDTO dto)
 	{
 		int affected = 0; 
@@ -131,4 +146,119 @@ public class DataroomDAO {
 		}
 		return affected;
 	}	
+	
+	//조회수 증가
+	public void updateVisitCount(String idx){
+		
+		String sql = "UPDATE dataroom SET "
+			+ " visitcount=visitcount+1 "
+			+ " WHERE idx=? ";
+		try{
+			psmt = con.prepareStatement(sql);
+			psmt.setString(1, idx);
+			psmt.executeUpdate();
+		}
+		catch(Exception e){}
+	}
+	
+	//자료실 게시물 상세보기
+	public DataroomDTO selectView(String idx){
+		
+		DataroomDTO dto = null;
+
+		String sql = "SELECT * FROM dataroom "
+			+ " WHERE idx=?";
+		try{
+			psmt = con.prepareStatement(sql);
+			psmt.setString(1, idx);
+			rs = psmt.executeQuery();
+			if(rs.next()){
+				dto = new DataroomDTO();
+
+				dto.setIdx(rs.getString(1));
+				dto.setName(rs.getString(2));
+				dto.setTitle(rs.getString(3));
+				dto.setContent(rs.getString(4));
+				dto.setPostdate(rs.getDate(5));
+				dto.setAttachedfile(rs.getString(6));
+				dto.setDowncount(rs.getInt(7));
+				dto.setPass(rs.getString(8));
+				dto.setVisitcount(rs.getInt(9));//조회수추가
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+
+		return dto;
+	}
+	
+	//게시물의 일련번호, 패스워드를 통한 검증(수정, 삭제시 호출)
+	public boolean isCorrectPassword(String pass, String idx) {
+		boolean isCorr=true;
+		try {
+			String sql = "SELECT COUNT(*) FROM dataroom "
+					+ " WHERE pass=? AND idx=?";
+			psmt = con.prepareStatement(sql);
+			psmt.setString(1, pass);
+			psmt.setString(2, idx);
+			rs = psmt.executeQuery();
+			rs.next();
+			if(rs.getInt(1)==0) {
+				//패스워드 검증 실패(해당하는 게시물이 없음)
+				isCorr = false;
+			}
+		}
+		catch (Exception e) {
+			isCorr=false;
+			e.printStackTrace();
+		}		
+		return isCorr;
+	}
+	
+	public int delete(String idx) {
+		
+		int affected = 0; 
+		try { 
+			String query = "DELETE FROM dataroom "
+							+ " WHERE idx=?";
+			psmt = con.prepareStatement(query); 
+			psmt.setString(1, idx);
+			
+			affected = psmt.executeUpdate(); //정상이라면 1이 반환
+		}
+		catch(Exception e) {
+			System.out.println("delete중 예외 발생");
+			e.printStackTrace();
+		}
+		
+		return affected;					
+	}
+	
+	public int update(DataroomDTO dto) {
+		int affected=0;
+		try {
+			String query = "UPDATE dataroom SET "
+					+ " title=?, name=?, content=? "
+					+ " , attachedfile=?, pass=? "
+					+ " WHERE idx=?";
+			
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, dto.getTitle());
+			psmt.setString(2, dto.getName());
+			psmt.setString(3, dto.getContent());
+			psmt.setString(4, dto.getAttachedfile());
+			psmt.setString(5, dto.getPass());
+			
+			//게시물 수정을 위한 추가부분
+			psmt.setString(6, dto.getIdx());
+			
+			affected=psmt.executeUpdate();
+		} 
+		catch (Exception e) {
+			System.out.println("Update중 예외 발생");
+			e.printStackTrace();
+		}
+		return affected;
+	}
 }	
