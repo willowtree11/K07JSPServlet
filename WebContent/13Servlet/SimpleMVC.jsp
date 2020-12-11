@@ -14,7 +14,7 @@
 		서블릿은 각기 다른 처리를 하게된다.
 	 -->
 	<ul>
-		<li><a href="SimpleMVC">SimpleMVC?type=</a></li>
+		<li><a href="/SimpleMVC">SimpleMVC?type=</a></li>
 		<li><a href="SimpleMVC?type=greeting&id=kosmo&pw=1111">SimpleMVC?type=greeting&id=kosmo&pw=1111</a></li>
 		<li><a href="SimpleMVC?type=date">SimpleMVC?type=date</a></li>
 		<li><a href="<%=request.getContextPath()%>/13Servlet/SimpleMVC?type=noparam">SimpleMVC?type=noparam</a></li>
@@ -22,5 +22,22 @@
 	
 	<h3>요청결과</h3>
 	<span style="color:red; font-size:2em;">${result }</span>
+	
+<!-- 
+	요청명을 결정할 때는 View의 경로와 동일한 depth(깊이)로
+	설정하는 것이 권장된다. 이미지의 경로, CSS, JS파일을
+	상대경로로 링크했을 때 경로가 깨지는 경우가 발생할 수 있기 때문이다.
+	아래 이미지의 경우 요청명이 "/13Servlet/SimpleMVC"일 때는 ../부분이 표시되고
+	"/SimpleMVC"일 때는  ./부분의 이미지가 표시될 것
+	
+ -->
+	<h3>이미지와 요청명</h3>
+	<h4>../으로 이미지 표현</h4>
+	<img src="../images/3.jpg" alt="구름하트" />	
+	<h4>./로 이미지 표현</h4>
+	<img src="./images/3.jpg" alt="구름하트" />
+	<h4>절대경로로 이미지 표현</h4>
+	<img src="<%=request.getContextPath() %>/images/3.jpg" alt="구름하트" />
+	<!-- 절대경로인 경우 요청명의 영향을 받지 않는다. -->
 </body>
 </html>

@@ -83,7 +83,7 @@
 											${map.totalCount - (((map.nowPage-1) * map.pageSize) + loop.index)}
 										</td>
 										<td class="text-left">
-											<a href="../DataRoom/DataView?idx=${row.idx }&nowPage=${param.nowPage }&searchColumn=${param.searchColumn }&searchWord=${param.searchWord }">${row.title }</a>
+											<a href="../DataRoom/DataView?idx=${row.idx }&nowPage=${map.nowPage }&searchColumn=${param.searchColumn }&searchWord=${param.searchWord }">${row.title }</a>
 										</td>
 										<td class="text-center">${row.name }</td>
                               			<td class="text-center">${row.postdate }</td>
@@ -107,7 +107,7 @@
 					<!-- 각종 버튼 부분 -->
 					<!--<button type="button" class="btn">Basic</button>-->
 					<button type="button" class="btn btn-primary" 
-						onclick="location.href='../DataRoom/DataWrite';">글쓰기</button>
+						onclick="location.href='../DataRoom/DataWrite?nowPage=${map.nowPage }&searchColumn=${param.searchColumn }&searchWord=${param.searchWord }';">글쓰기</button>
 					<!-- <button type="button" class="btn btn-secondary">수정하기</button>
 					<button type="button" class="btn btn-success">삭제하기</button>
 					<button type="button" class="btn btn-info">답글쓰기</button>
@@ -122,6 +122,7 @@
 				<div class="col">
 					<!-- 페이지번호 부분 -->
 					<ul class="pagination justify-content-center">
+						${map.pagingImg }
 						<!-- 
 							매개변수 설명:
 								totalRecordCount: 게시물의 전체 갯수
