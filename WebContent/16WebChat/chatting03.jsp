@@ -35,7 +35,7 @@ var inputMessage = document.getElementById('inputMessage');
 var chat_id = document.getElementById('chat_id').value;
 //웹소켓 객체를 생성하여 채팅서버에 접속
 var webSocket = 
-	new WebSocket('ws://192.168.219.115:9999/K07JSPServlet/ChatServer02');
+	new WebSocket('ws://localhost:9999/K07JSPServlet/ChatServer02');
 
 /*
 	웹소켓 서버에 연결한 후 메세지전송, 에러발생 등은 모두 이벤트를 
