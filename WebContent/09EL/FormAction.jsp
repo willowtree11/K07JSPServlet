@@ -28,7 +28,7 @@
 
 <body>
 	<h2>폼값 전송하기</h2>
-	<form name="frm" onsubmit="return frmCheck();">
+	<form name="frm" onsubmit="return frmCheck(this);">
 	<ul>
 		<li>
 			이름 : <input type="text" name="name" />		
