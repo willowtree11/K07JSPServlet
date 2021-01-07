@@ -12,7 +12,7 @@
 <head>
 <meta charset="UTF-8">
 <title>01Set</title>
-ㄴ</head>
+</head>
 <body>
 	<!-- 
 		set태그 속성
